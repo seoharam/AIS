@@ -23,14 +23,14 @@ Ctrl + / 버튼을 이용해 주석 처리를 할 수 있고,
 """
 
 #분석 파일명
-file_path = '강원해양호_항적'
+file_path = '한우리호_항적'
 
 file = file_path
 
 #모델 입력 값
 google_map_flag = 0 # 구글맵에 항적표기 실행 여부. 1: 실행, 0: 실행 x
 k_means_flag = 1 # k-means clustering 실행 여부. 1: 실행, 0: 실행 x
-n_clusters = 4 # k(원하는 군집, 본 문제에서는 operation mode)의 개수를 설정
+n_clusters = 5 # k(원하는 군집, 본 문제에서는 operation mode)의 개수를 설정
 
 """
 수정 가능한 파트
@@ -50,7 +50,7 @@ if os.path.isfile("./Output/time_{}.npy".format(file)) == False:
     """
     
     # 파일을 불러들임, 다른 파일을 사용할 경우 해당 파일명을 입력하면 됨
-    df = pd.read_csv("./Input" + file + ".csv", sep=',', skiprows=2, encoding='cp949')
+    df = pd.read_csv("./Input/" + file + ".csv", sep=',', skiprows=2, encoding='cp949')
 
     # 원래 데이터에 한글로 되어있어 인식되지 않는 칼럼 명을 영어로 변경함
     df.columns = ['MMSI', 'date', 'longi', 'latit', 'SOG', 'COG', 'heading', 'voyage']
@@ -183,7 +183,17 @@ if k_means_flag:
 
     #각 군집별 데이터의 개수 확인
     print("data number of cluster")
-    print("".join("label {} : {}\n".format(i, labels.count(i)) for i in num_labels))
+    print("".join("label {} : {} / ".format(i, labels.count(i)) for i in num_labels))
+    print("---------------------------------------------------")
+    # 군집별 데이터의 평균값 확인
+    for i in range(len(centers)):
+        print("Mean values for label {}:".format(i))
+        print("0~5: {}".format(centers[i][0]))
+        print("5~10: {}".format(centers[i][1]))
+        print("10~15: {}".format(centers[i][2]))
+        print("15~20: {}".format(centers[i][3]))
+        print("20~30: {}".format(centers[i][4]))
+        print("---------------------------------------------------")
 
     ###군집별 데이터를 시각화를 통해 확인하는 파트###
     bar_color = ['b', 'g', 'r', 'm', 'y', 'c', 'k', 'lime']
@@ -244,10 +254,11 @@ if k_means_flag:
     """
     date 파일을 불러와서 구글 맵 이미지를 띄우는 파트
     """
-print('---------------------------------------------------------------------')
+
 print('silhouette score: ',silhouette_score(time_data, model.labels_))
 
-plt.show()
+# matplot 저장
+plt.savefig(f"./Output/Result/{file_path}_{n_clusters}.png")
 
 """
 종료: 처리된 데이터를 K-means clustering algorithm을 이용해 군집화 하는 파트
